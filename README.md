@@ -1,5 +1,7 @@
 # OCR END TO END DOCUMENT CLASSIFICATION
 
+LinkedIn Post : https://www.linkedin.com/feed/update/urn:li:activity:7376182733032824832/
+
 AI-Powered Invoice & Receipt Analysis with OCR Technology
 
 ## Overview
