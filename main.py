@@ -270,7 +270,7 @@ if __name__ == "__main__":
     print("=" * 50)
     
     # Test with sample file
-    sample_file = Path(__file__).parent / "sample" / "2.jpg"
+    sample_file = Path(__file__).parent / "sample" / "3.jpg"
     
     if sample_file.exists():
         print(f"Testing with sample file: {sample_file}")
