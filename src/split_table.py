@@ -328,7 +328,7 @@ if __name__ == "__main__":
     project_root = current_file.parent.parent  # Go up to project root
     
     # Test with sample file
-    sample_file = project_root / "sample" / "1.jpg"
+    sample_file = project_root / "sample" / "3.jpg"
     output_directory = project_root / "temp" / "splited"
     
     if sample_file.exists():

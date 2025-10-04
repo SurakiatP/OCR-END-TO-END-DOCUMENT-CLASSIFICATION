@@ -20,6 +20,8 @@ project_root/
 ├── requirements.txt            # Python dependencies
 ├── README.md                  # Project documentation
 ├── .gitignore                # Git ignore rules
+├── evaluation.py                   # Evaluation metrics system
+├── test_data.json                  # Test dataset with ground truth
 │
 ├── src/                      # Source code modules
 │   ├── streamlit.py          # Web interface

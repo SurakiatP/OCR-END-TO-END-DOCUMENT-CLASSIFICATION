@@ -269,22 +269,22 @@ if __name__ == "__main__":
     print("Document Processing Pipeline")
     print("=" * 50)
     
-    # # Test with sample file
-    # sample_file = Path(__file__).parent / "sample" / "1.jpg"
+    # Test with sample file
+    sample_file = Path(__file__).parent / "sample" / "2.jpg"
     
-    # if sample_file.exists():
-    #     print(f"Testing with sample file: {sample_file}")
-    #     results = process_single_document(str(sample_file))
+    if sample_file.exists():
+        print(f"Testing with sample file: {sample_file}")
+        results = process_single_document(str(sample_file))
         
-    #     print(f"\nResults:")
-    #     print(f"Success: {results['success']}")
-    #     print(f"Steps completed: {results['steps_completed']}")
+        print(f"\nResults:")
+        print(f"Success: {results['success']}")
+        print(f"Steps completed: {results['steps_completed']}")
         
-    #     if results['errors']:
-    #         print(f"Errors: {results['errors']}")
-    # else:
-    #     print(f"Sample file not found: {sample_file}")
-    #     print("Please place a test image in the sample/ directory")
+        if results['errors']:
+            print(f"Errors: {results['errors']}")
+    else:
+        print(f"Sample file not found: {sample_file}")
+        print("Please place a test image in the sample/ directory")
     
     # Show processor status
     processor = DocumentProcessor()
