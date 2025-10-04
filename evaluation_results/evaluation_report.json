@@ -6,39 +6,72 @@
     "max_cer": 0.4312267657992565
   },
   "field_accuracy": {
-    "invoice_no": {
-      "accuracy": 0.75,
-      "correct": 3,
-      "total": 4
+    "invoice": {
+      "invoice_no": {
+        "accuracy": 1.0,
+        "correct": 2,
+        "total": 2
+      },
+      "date": {
+        "accuracy": 1.0,
+        "correct": 2,
+        "total": 2
+      },
+      "seller_name": {
+        "accuracy": 0.5,
+        "correct": 1,
+        "total": 2
+      },
+      "total_amount": {
+        "accuracy": 1.0,
+        "correct": 2,
+        "total": 2
+      },
+      "vat": {
+        "accuracy": 1.0,
+        "correct": 2,
+        "total": 2
+      }
     },
-    "date": {
-      "accuracy": 0.5,
-      "correct": 2,
-      "total": 4
-    },
-    "seller_name": {
-      "accuracy": 0.5,
-      "correct": 2,
-      "total": 4
-    },
-    "total_amount": {
-      "accuracy": 1.0,
-      "correct": 4,
-      "total": 4
-    },
-    "vat": {
-      "accuracy": 0.5,
-      "correct": 2,
-      "total": 4
+    "receipt": {
+      "receipt_no": {
+        "accuracy": 0.5,
+        "correct": 1,
+        "total": 2
+      },
+      "date": {
+        "accuracy": 1.0,
+        "correct": 2,
+        "total": 2
+      },
+      "seller_name": {
+        "accuracy": 0.5,
+        "correct": 1,
+        "total": 2
+      },
+      "total_amount": {
+        "accuracy": 1.0,
+        "correct": 2,
+        "total": 2
+      },
+      "vat": {
+        "accuracy": 0.0,
+        "correct": 0,
+        "total": 2
+      }
     }
   },
   "processing_speed": {
-    "mean_time": 39.44899225234985,
-    "median_time": 39.91491389274597,
-    "min_time": 26.417136669158936,
-    "max_time": 51.549004554748535,
-    "std_time": 9.490880815217293,
-    "throughput": 0.02534919000219665
+    "mean_time": 45.894144773483276,
+    "median_time": 47.518049359321594,
+    "min_time": 34.48458790779114,
+    "max_time": 54.05589246749878,
+    "std_time": 8.115570751641378,
+    "throughput": 0.021789271919885084
   },
-  "test_cases": 4
+  "test_cases": {
+    "total": 4,
+    "invoices": 2,
+    "receipts": 2
+  }
 }

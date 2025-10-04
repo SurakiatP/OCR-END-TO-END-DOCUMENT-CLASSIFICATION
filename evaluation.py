@@ -73,59 +73,98 @@ class OCREvaluator:
     def evaluate_field_accuracy(self, test_data: List[Dict]) -> Dict:
         """
         Evaluate accuracy for each extracted field separately
-        Compares extracted fields with ground truth values
+        Now separates invoice and receipt fields
         
         Returns:
-            dict: Accuracy statistics for each field type
+            dict: Accuracy statistics for invoice and receipt fields separately
         """
-        fields = ['invoice_no', 'date', 'seller_name', 'total_amount', 'vat']
-        field_results = {field: {'correct': 0, 'total': 0} for field in fields}
+        # Define fields for both document types
+        invoice_fields = ['invoice_no', 'date', 'seller_name', 'total_amount', 'vat']
+        receipt_fields = ['receipt_no', 'date', 'seller_name', 'total_amount', 'vat']
+        
+        # Separate results for invoice and receipt
+        invoice_results = {field: {'correct': 0, 'total': 0} for field in invoice_fields}
+        receipt_results = {field: {'correct': 0, 'total': 0} for field in receipt_fields}
+        
+        # Store all extracted data before they get overwritten
+        all_extracted_data = []
         
         for test_case in test_data:
             # Process document
             result = self.processor.process_document(test_case['image_path'])
             
             if result['success']:
-                # Load output JSON containing extracted data
+                # IMMEDIATELY read the result before it gets overwritten
                 json_path = self.processor.meta_data_dir / "meta.json"
                 with open(json_path, 'r', encoding='utf-8') as f:
                     output_data = json.load(f)
                 
-                # Get the most recently processed document
+                # Get the document based on type
                 doc_type = test_case['ground_truth']['doc_type']
                 if doc_type == 'invoice' and output_data['invoices']:
-                    extracted = output_data['invoices'][-1]
+                    extracted = output_data['invoices'][0]
                 elif doc_type == 'receipt' and output_data['receipts']:
-                    extracted = output_data['receipts'][-1]
+                    extracted = output_data['receipts'][0]
                 else:
                     continue
                 
-                # Compare each field with ground truth
-                ground_truth = test_case['ground_truth']
-                for field in fields:
-                    if field in ground_truth:
-                        field_results[field]['total'] += 1
-                        
-                        # Map generic field name to document-specific field name
-                        output_field = self._map_field_name(field, doc_type)
-                        
-                        # Check if extracted value matches ground truth
-                        if self._is_match(extracted.get(output_field), 
-                                        ground_truth[field], 
-                                        field):
-                            field_results[field]['correct'] += 1
+                # Store for this test case
+                all_extracted_data.append({
+                    'test_case': test_case,
+                    'extracted': extracted
+                })
         
-        # Calculate accuracy percentages
-        accuracy_results = {}
-        for field, stats in field_results.items():
+        # Now compare all results with ground truth
+        for data in all_extracted_data:
+            test_case = data['test_case']
+            extracted = data['extracted']
+            ground_truth = test_case['ground_truth']
+            doc_type = ground_truth['doc_type']
+            
+            # Choose appropriate field list and results dict
+            if doc_type == 'invoice':
+                fields = invoice_fields
+                field_results = invoice_results
+            else:  # receipt
+                fields = receipt_fields
+                field_results = receipt_results
+            
+            for field in fields:
+                if field in ground_truth:
+                    field_results[field]['total'] += 1
+                    
+                    # Map generic field name to document-specific field name
+                    output_field = self._map_field_name(field, doc_type)
+                    
+                    # Check if extracted value matches ground truth
+                    if self._is_match(extracted.get(output_field), 
+                                    ground_truth[field], 
+                                    field):
+                        field_results[field]['correct'] += 1
+        
+        # Calculate accuracy percentages for both types
+        invoice_accuracy = {}
+        for field, stats in invoice_results.items():
             if stats['total'] > 0:
-                accuracy_results[field] = {
+                invoice_accuracy[field] = {
                     'accuracy': stats['correct'] / stats['total'],
                     'correct': stats['correct'],
                     'total': stats['total']
                 }
         
-        return accuracy_results
+        receipt_accuracy = {}
+        for field, stats in receipt_results.items():
+            if stats['total'] > 0:
+                receipt_accuracy[field] = {
+                    'accuracy': stats['correct'] / stats['total'],
+                    'correct': stats['correct'],
+                    'total': stats['total']
+                }
+        
+        return {
+            'invoice': invoice_accuracy,
+            'receipt': receipt_accuracy
+        }
     
     def _map_field_name(self, field: str, doc_type: str) -> str:
         """
@@ -134,6 +173,7 @@ class OCREvaluator:
         """
         mapping = {
             'invoice_no': 'invoice_no' if doc_type == 'invoice' else 'receipt_no',
+            'receipt_no': 'receipt_no',
             'date': 'invoice_date' if doc_type == 'invoice' else 'receipt_date',
             'seller_name': 'seller_name',
             'total_amount': 'total_amount' if doc_type == 'invoice' else 'total_paid',
@@ -199,7 +239,7 @@ class OCREvaluator:
         """
         Run all three evaluation metrics and generate report
         1. OCR Accuracy (Character Error Rate)
-        2. Field-level Accuracy
+        2. Field-level Accuracy (separated by document type)
         3. Processing Speed
         
         Saves results to JSON file for further analysis
@@ -212,18 +252,35 @@ class OCREvaluator:
         test_data = self.load_test_data(test_file)
         print(f"\nLoaded {len(test_data)} test cases")
         
+        # Count document types
+        invoice_count = sum(1 for t in test_data if t['ground_truth']['doc_type'] == 'invoice')
+        receipt_count = sum(1 for t in test_data if t['ground_truth']['doc_type'] == 'receipt')
+        print(f"  Invoices: {invoice_count}")
+        print(f"  Receipts: {receipt_count}")
+        
         # Metric 1: OCR Accuracy using Character Error Rate
         print("\n--- Metric 1: Character Error Rate ---")
         ocr_results = self.evaluate_ocr_accuracy(test_data)
         print(f"Character Accuracy: {ocr_results['char_accuracy']*100:.2f}%")
         print(f"Mean CER: {ocr_results['mean_cer']*100:.2f}%")
         
-        # Metric 2: Field-level Accuracy
+        # Metric 2: Field-level Accuracy (now separated)
         print("\n--- Metric 2: Field-level Accuracy ---")
         field_results = self.evaluate_field_accuracy(test_data)
-        for field, stats in field_results.items():
-            print(f"{field:15s}: {stats['accuracy']*100:.1f}% "
-                  f"({stats['correct']}/{stats['total']})")
+        
+        # Display Invoice fields
+        if field_results['invoice']:
+            print("\nInvoice Fields:")
+            for field, stats in field_results['invoice'].items():
+                print(f"  {field:15s}: {stats['accuracy']*100:.1f}% "
+                      f"({stats['correct']}/{stats['total']})")
+        
+        # Display Receipt fields
+        if field_results['receipt']:
+            print("\nReceipt Fields:")
+            for field, stats in field_results['receipt'].items():
+                print(f"  {field:15s}: {stats['accuracy']*100:.1f}% "
+                      f"({stats['correct']}/{stats['total']})")
         
         # Metric 3: Processing Speed
         print("\n--- Metric 3: Processing Speed ---")
@@ -237,7 +294,11 @@ class OCREvaluator:
             'ocr_accuracy': ocr_results,
             'field_accuracy': field_results,
             'processing_speed': speed_results,
-            'test_cases': len(test_data)
+            'test_cases': {
+                'total': len(test_data),
+                'invoices': invoice_count,
+                'receipts': receipt_count
+            }
         }
         
         # Save results to JSON file

@@ -164,7 +164,9 @@ class TextDocumentProcessor:
         date_patterns = [
             r'(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})',
             r'(\d{1,2})\s+(มกราคม|กุมภาพันธ์|มีนาคม|เมษายน|พฤษภาคม|มิถุนายน|กรกฎาคม|สิงหาคม|กันยายน|ตุลาคม|พฤศจิกายน|ธันวาคม|ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)\s+(\d{4})',
-            r'(\d{1,2})\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{4})'
+            r'(\d{1,2})\s+(มกราคม|กุมภาพันธ์|มีนาคม|เมษายน|พฤษภาคม|มิถุนายน|กรกฎาคม|สิงหาคม|กันยายน|ตุลาคม|พฤศจิกายน|ธันวาคม|ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)(\d{4})',
+            r'(\d{1,2})\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{4})',
+            r'(\d{1,2})\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|january|february|march|april|may|june|july|august|september|october|november|december)(\d{4})',
         ]
         
         for pattern in date_patterns:
@@ -262,6 +264,7 @@ class TextDocumentProcessor:
         patterns = [
             (r'รวมเป็นเงิน\s*\(ไม่รวม\s*vat\)\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)(?:\s*บาท)?', 'subtotal'),
             (r'ภาษีมูลค่าเพิ่ม.*?(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)(?:\s*บาท)?', 'vat_amount'),
+            (r'ภาษีมูลค่าเพิ่ม\s*(?:7%|7\s*%)?[:\s]*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)', 'vat'),
             (r'ยอดรวมสุทธิ\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)(?:\s*บาท)?', 'total_amount'),
         ]
         
